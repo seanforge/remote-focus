@@ -11,6 +11,12 @@ The stack:
 | Typeless | Voice dictation (hold the voice key, speak — whispering works if you hold the mic end close) |
 | **remote-focus** (this repo) | Adds generic accessibility-based navigation on top of SayAll while Claude / Codex is frontmost |
 
+## Setup on a new Mac
+
+1. Pair the remote; install SayAll and Typeless (Typeless: hold **Fn** to dictate, mic = the remote).
+2. In SayAll, import `sayall/sayall-with-remotefocus.json`.
+3. `bash install.sh`, then allow **RemoteFocus** in Privacy & Security → Accessibility and Input Monitoring.
+
 ## Design principle
 
 remote-focus only uses what the apps themselves expose through macOS accessibility (ARIA landmarks, editable text, keyboard focus). It has **no per-app hacks** except one: the "previous / next session" shortcut, which differs per app by design. Arrow keys and OK are passed to the app untouched, so each app keeps its own keyboard behavior.
@@ -57,8 +63,8 @@ Diagnostics: `.build/release/ax-dump claude` (or `codex`) writes the window's ac
 ## Install as a login app
 
 ```bash
-./install.sh     # build, install ~/Applications/RemoteFocus.app, start now and at every login
-./uninstall.sh   # stop it and remove the app + login item
+bash install.sh     # build, install ~/Applications/RemoteFocus.app, start now and at every login
+bash uninstall.sh   # stop it and remove the app + login item
 ```
 
 On first launch allow **RemoteFocus** under System Settings → Privacy & Security → **Accessibility** and **Input Monitoring**; it waits until both are granted. The build is ad-hoc signed, so after a reinstall macOS may ask again (remove the old entry, enable the new one). Log: `~/Library/Logs/RemoteFocus.log` (startup and permission messages only, so it stays tiny; for per-key debugging run `swift build -c release && .build/release/remote-focus --verbose` in a terminal).
