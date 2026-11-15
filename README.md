@@ -54,6 +54,15 @@ On first run grant your terminal **Accessibility** and **Input Monitoring** (Sys
 
 Diagnostics: `.build/release/ax-dump claude` (or `codex`) writes the window's accessibility tree to `~/Downloads/ax-dump-<app>.txt`.
 
+## Install as a login app
+
+```bash
+./install.sh     # build, install ~/Applications/RemoteFocus.app, start now and at every login
+./uninstall.sh   # stop it and remove the app + login item
+```
+
+On first launch allow **RemoteFocus** under System Settings → Privacy & Security → **Accessibility** and **Input Monitoring**; it waits until both are granted. The build is ad-hoc signed, so after a reinstall macOS may ask again (remove the old entry, enable the new one). Log: `~/Library/Logs/RemoteFocus.log` (startup and permission messages only, so it stays tiny; for per-key debugging run `swift build -c release && .build/release/remote-focus --verbose` in a terminal).
+
 ## Known limitations
 
 - Depends on two SayAll internals: the marker it puts on synthetic events (`0x5849414F`, "XIAO") and its key-repeat timing (first repeat after ~0.35 s, then every 0.1 s).

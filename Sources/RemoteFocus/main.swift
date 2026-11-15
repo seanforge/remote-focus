@@ -252,14 +252,13 @@ final class Controller {
 // MARK: - 启动
 
 let verbose = CommandLine.arguments.contains("--verbose") || CommandLine.arguments.contains("-v")
+setvbuf(stdout, nil, _IOLBF, 0)   // 后台运行时输出写进日志文件，按行刷新
 
-let trusted = AXIsProcessTrustedWithOptions([kAXTrustedCheckOptionPrompt.takeUnretainedValue() as String: true] as CFDictionary)
-if !trusted {
-    print("""
-    ⚠️ 需要「辅助功能」权限：系统设置 → 隐私与安全性 → 辅助功能，
-       打开你运行本程序的那个终端（Terminal / iTerm / Warp…），然后重新运行。
-    """)
-    exit(1)
+// 权限没给时不退出，等你在系统设置里打开（开机自启时也不会因为缺权限反复重启）。
+if !AXIsProcessTrustedWithOptions([kAXTrustedCheckOptionPrompt.takeUnretainedValue() as String: true] as CFDictionary) {
+    print("⏳ 等待「辅助功能」权限：系统设置 → 隐私与安全性 → 辅助功能，打开 RemoteFocus（或你运行它的终端）。")
+    while !AXIsProcessTrusted() { Thread.sleep(forTimeInterval: 2) }
+    print("✅ 已获得辅助功能权限")
 }
 
 let application = NSApplication.shared
@@ -277,15 +276,20 @@ let callback: CGEventTapCallBack = { _, type, event, _ in
     guard let result = controller.handle(type: type, event: event) else { return nil }
     return Unmanaged.passUnretained(result)
 }
-guard let tap = CGEvent.tapCreate(tap: .cgSessionEventTap, place: .headInsertEventTap, options: .defaultTap,
-                                  eventsOfInterest: CGEventMask(mask), callback: callback, userInfo: nil) else {
-    print("⚠️ 无法监听键盘事件：请在 系统设置 → 隐私与安全性 → 输入监控 里也打开你的终端，然后重新运行。")
-    exit(1)
+func createTap() -> CFMachPort? {
+    CGEvent.tapCreate(tap: .cgSessionEventTap, place: .headInsertEventTap, options: .defaultTap,
+                      eventsOfInterest: CGEventMask(mask), callback: callback, userInfo: nil)
 }
+var createdTap = createTap()
+if createdTap == nil {
+    print("⏳ 等待「输入监控」权限：系统设置 → 隐私与安全性 → 输入监控，打开 RemoteFocus（或你运行它的终端）。")
+    while createdTap == nil { Thread.sleep(forTimeInterval: 2); createdTap = createTap() }
+}
+let tap = createdTap!
 tapRef = tap
 let source = CFMachPortCreateRunLoopSource(kCFAllocatorDefault, tap, 0)
 CFRunLoopAddSource(CFRunLoopGetMain(), source, .commonModes)
 CGEvent.tapEnable(tap: tap, enable: true)
 
-print("✅ RemoteFocus 已启动。只在 Claude / Codex 在前台时生效；Ctrl+C 退出。\(verbose ? "（详细日志已开）" : "")")
+print("✅ RemoteFocus 已启动。只在 Claude / Codex 在前台时生效。\(verbose ? "（详细日志已开）" : "")")
 application.run()
