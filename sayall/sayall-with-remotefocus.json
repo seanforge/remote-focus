@@ -1,0 +1,48 @@
+{
+  "applicationLanguage": "zh-Hans",
+  "buttonApplicationProfileIDs": {},
+  "buttonBindings": {
+    "back": "deleteBackward",
+    "down": "arrowDown",
+    "home": "customShortcut",
+    "left": "arrowLeft",
+    "menu": "openClaude",
+    "ok": "returnKey",
+    "power": "escape",
+    "right": "arrowRight",
+    "tv": "openCodex",
+    "up": "arrowUp",
+    "volume_down": "scrollDown",
+    "volume_up": "scrollUp"
+  },
+  "buttonShortcuts": {
+    "home": {
+      "keyCode": 45,
+      "keyLabel": "N",
+      "modifierFlagsRawValue": 1048576
+    }
+  },
+  "checksForPreReleaseUpdates": false,
+  "customApplicationProfiles": [],
+  "customMappingEnabled": true,
+  "experimentalContinuousRecordingEnabled": false,
+  "formatVersion": 1,
+  "gainDB": 10,
+  "openMainWindowAtLaunch": true,
+  "secondaryButtonBindings": {
+    "home": {
+      "longPress": {
+        "action": "commandUndo"
+      }
+    },
+    "ok": {
+      "longPress": {
+        "action": "focusInput"
+      }
+    }
+  },
+  "selectedAudioDeviceUID": "MiRemoteV2ch_UID",
+  "showDockIcon": true,
+  "voiceFnTapModeEnabled": true,
+  "voiceKeyMode": "fn"
+}
